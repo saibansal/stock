@@ -1,0 +1,29 @@
+# Dependencies
+node_modules/
+client/node_modules/
+server/node_modules/
+
+# Build artifacts
+dist/
+client/dist/
+build/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Local Database Files
+# (We ignore the actual data so it doesn't get pushed to the repository)
+server/data/*.json
+server/data/*.xml
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# IDE and OS files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
