@@ -33,18 +33,37 @@ const initialPlatforms = { platforms: [] };
 
 const builder = new xml2js.Builder();
 
-function initFiles() {
-    if (!fs.existsSync(tradesJsonPath)) fs.writeFileSync(tradesJsonPath, JSON.stringify(initialTrades, null, 2));
-    if (!fs.existsSync(tradesXmlPath)) fs.writeFileSync(tradesXmlPath, builder.buildObject({ root: initialTrades }));
-    
-    if (!fs.existsSync(walletJsonPath)) fs.writeFileSync(walletJsonPath, JSON.stringify(initialWallet, null, 2));
-    if (!fs.existsSync(walletXmlPath)) fs.writeFileSync(walletXmlPath, builder.buildObject({ root: initialWallet }));
+const bundledDataDir = path.join(__dirname, '..', 'data');
 
-    if (!fs.existsSync(banksJsonPath)) fs.writeFileSync(banksJsonPath, JSON.stringify(initialBanks, null, 2));
-    if (!fs.existsSync(banksXmlPath)) fs.writeFileSync(banksXmlPath, builder.buildObject({ root: initialBanks }));
+function initOrCopy(jsonName, xmlName, initialData) {
+    const jsonTmpPath = path.join(dataDir, jsonName);
+    const xmlTmpPath = path.join(dataDir, xmlName);
     
-    if (!fs.existsSync(platformsJsonPath)) fs.writeFileSync(platformsJsonPath, JSON.stringify(initialPlatforms, null, 2));
-    if (!fs.existsSync(platformsXmlPath)) fs.writeFileSync(platformsXmlPath, builder.buildObject({ root: initialPlatforms }));
+    const jsonBundledPath = path.join(bundledDataDir, jsonName);
+    const xmlBundledPath = path.join(bundledDataDir, xmlName);
+
+    if (!fs.existsSync(jsonTmpPath)) {
+        if (isVercel && fs.existsSync(jsonBundledPath)) {
+            fs.copyFileSync(jsonBundledPath, jsonTmpPath);
+        } else {
+            fs.writeFileSync(jsonTmpPath, JSON.stringify(initialData, null, 2));
+        }
+    }
+
+    if (!fs.existsSync(xmlTmpPath)) {
+        if (isVercel && fs.existsSync(xmlBundledPath)) {
+            fs.copyFileSync(xmlBundledPath, xmlTmpPath);
+        } else {
+            fs.writeFileSync(xmlTmpPath, builder.buildObject({ root: initialData }));
+        }
+    }
+}
+
+function initFiles() {
+    initOrCopy('database_trades.json', 'database_trades.xml', initialTrades);
+    initOrCopy('database_wallet.json', 'database_wallet.xml', initialWallet);
+    initOrCopy('database_banks.json', 'database_banks.xml', initialBanks);
+    initOrCopy('database_platforms.json', 'database_platforms.xml', initialPlatforms);
 }
 initFiles();
 
